@@ -15,6 +15,15 @@ app.get('/urls.json', (req, res)=> {
   res.json(urlDatabase);
 })
 
+app.get("/hello", (req, res) => {
+  const a = 1;
+  res.send(`a equals = ${a}`) 
+});
+
+app.get("/fetch", (req, res) => {
+  res.send(`a equals = ${a}`) 
+});
+
 app.listen(PORT, ()=>{
   console.log(`Server is Listening to http://localhost:${PORT}`)
 })
