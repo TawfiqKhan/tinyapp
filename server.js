@@ -11,12 +11,9 @@ const urlDatabase = {
 };
 
 app.get('/urls/:urlId', (req, res)=> {
-  console.log(req.params.id)
   let shortURL = req.params.urlId;
   let longURL = urlDatabase[shortURL];
-  console.log(shortURL, longURL)
   const templateVars = {shortURL, longURL}
-  console.log(templateVars);
   res.render("urls_show", templateVars)
 })
 
