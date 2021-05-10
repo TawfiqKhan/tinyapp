@@ -25,10 +25,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Mark</td>
-              <td>Sunny</td>
-            </tr>
+            <% let keys=Object.keys(urls) %>
+              <% for(let item of keys) { %>
+                <tr>
+                  <td><%= item %></td>
+                  <td><%= urls[item] %></td>
+                </tr>
+                <% } %>
           </tbody>
         </table>
       </div>
