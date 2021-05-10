@@ -16,8 +16,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  let longURL = req.body.longURL;
+  let shortURL = generateRandomString();
+  const templateVars = { shortURL, longURL }
+  res.send(templateVars);
 })
 app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
