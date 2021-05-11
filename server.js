@@ -54,7 +54,19 @@ app.post('/urls/:id/delete', (req, res)=> {
   res.redirect("/urls")
 })
 
-// Post Request
+// Handing Edit Request
+
+app.post('/urls/:id/edit', (req, res)=> {
+  let id = req.params.id;
+  let updatedUrl = req.body.updatedUrl;
+  urlDatabase[id] = updatedUrl;
+  //After Deleting redirecting to Urls/Home Page.
+  // res.redirect("/urls")
+  res.redirect("/urls");
+})
+
+
+// Creating New Url
 
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
