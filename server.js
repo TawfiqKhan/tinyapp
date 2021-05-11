@@ -20,7 +20,7 @@ app.get("/u/:urlId", (req, res)=> {
   let shortURL = req.params.urlId;
   if(!urlDatabase[shortURL]) {
     res.statusCode = 404;
-    res.send("Error: 404, your requested URL not Found.")
+    res.render("404")
   }
   let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
@@ -30,7 +30,7 @@ app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
   if(!urlDatabase[shortURL]) {
     res.statusCode = 404;
-    res.send("Error: 404, your requested URL not Found.")
+    res.render("404")
   }
   let longURL = urlDatabase[shortURL];
   const templateVars = { shortURL, longURL }
