@@ -12,17 +12,26 @@ const urlDatabase = {
 };
 
 // Get Requests
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-app.get("/u/:urlId", (req, res) => {
+app.get("/u/:urlId", (req, res)=> {
   let shortURL = req.params.urlId;
+  if(!urlDatabase[shortURL]) {
+    res.statusCode = 404;
+    res.send("Error: 404, your requested URL not Found.")
+  }
   let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 })
 
 app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
+  if(!urlDatabase[shortURL]) {
+    res.statusCode = 404;
+    res.send("Error: 404, your requested URL not Found.")
+  }
   let longURL = urlDatabase[shortURL];
   const templateVars = { shortURL, longURL }
   res.render("urls_show", templateVars)
@@ -34,18 +43,18 @@ app.get('/urls', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-  res.redirect('/urls')
+  res.redirect("/urls")
 })
 
 // Post Request
+
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL]= longURL;
   const templateVars = { shortURL, longURL }
   res.redirect(`/urls/${shortURL}`);
 })
-
 
 // Server Creation
 app.listen(PORT, () => {
