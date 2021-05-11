@@ -11,10 +11,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Get Requests
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-app.get("/u/:urlId", (req, res)=> {
+app.get("/u/:urlId", (req, res) => {
   let shortURL = req.params.urlId;
   let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
@@ -27,14 +28,6 @@ app.get('/urls/:urlId', (req, res) => {
   res.render("urls_show", templateVars)
 })
 
-app.post("/urls", (req, res) => {
-  let longURL = req.body.longURL;
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL]= longURL;
-  const templateVars = { shortURL, longURL }
-  res.redirect(`/urls/${shortURL}`);
-})
-
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase }
   res.render("urls_index", templateVars)
@@ -44,20 +37,17 @@ app.get('/', (req, res) => {
   res.redirect('/urls')
 })
 
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
+// Post Request
+app.post("/urls", (req, res) => {
+  let longURL = req.body.longURL;
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = longURL;
+  const templateVars = { shortURL, longURL }
+  res.redirect(`/urls/${shortURL}`);
 })
 
-app.get("/hello", (req, res) => {
-  const a = 1;
-  res.send(`a equals = ${a}`)
-});
 
-app.get("/fetch", (req, res) => {
-  res.send(`a equals = ${a}`)
-});
-
+// Server Creation
 app.listen(PORT, () => {
   console.log(`Server is Listening to http://localhost:${PORT}`)
 })
