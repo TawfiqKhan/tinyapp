@@ -1,10 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT = 3000;
-const bodyParser = require("body-parser");
 
 app.set("view engine", "ejs")
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }))
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -43,6 +42,15 @@ app.get('/urls', (req, res) => {
 })
 
 app.get('/', (req, res) => {
+  res.redirect("/urls")
+})
+
+// Handling Delete Request
+
+app.post('/urls/:id/delete', (req, res)=> {
+  let id = req.params.id;
+  delete urlDatabase[id];
+  //After Deleting redirecting to Urls/Home Page.
   res.redirect("/urls")
 })
 
