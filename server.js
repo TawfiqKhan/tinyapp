@@ -12,9 +12,22 @@ const urlDatabase = {
 
 // Get Requests
 
+// Creating New Url
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+app.post("/urls", (req, res) => {
+  let longURL = req.body.longURL;
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL]= longURL;
+  const templateVars = { shortURL, longURL }
+  res.redirect(`/urls/${shortURL}`);
+})
+
+// get request to Url's destination
+
 app.get("/u/:urlId", (req, res)=> {
   let shortURL = req.params.urlId;
   if(!urlDatabase[shortURL]) {
@@ -25,6 +38,7 @@ app.get("/u/:urlId", (req, res)=> {
   res.redirect(longURL);
 })
 
+// Handling get request for show Page
 app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
   if(!urlDatabase[shortURL]) {
@@ -36,6 +50,7 @@ app.get('/urls/:urlId', (req, res) => {
   res.render("urls_show", templateVars)
 })
 
+// Request for route/Urls page
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase }
   res.render("urls_index", templateVars)
@@ -65,16 +80,6 @@ app.post('/urls/:id/edit', (req, res)=> {
   res.redirect("/urls");
 })
 
-
-// Creating New Url
-
-app.post("/urls", (req, res) => {
-  let longURL = req.body.longURL;
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL]= longURL;
-  const templateVars = { shortURL, longURL }
-  res.redirect(`/urls/${shortURL}`);
-})
 
 // Server Creation
 app.listen(PORT, () => {
