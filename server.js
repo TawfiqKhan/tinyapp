@@ -11,10 +11,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+app.get("/u/:urlId", (req, res)=> {
+  let shortURL = req.params.urlId;
+  let longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+})
 
 app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
@@ -37,7 +41,7 @@ app.get('/urls', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.redirect('/urls')
 })
 
 
