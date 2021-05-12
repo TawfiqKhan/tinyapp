@@ -1,9 +1,11 @@
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const PORT = 3000;
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -21,16 +23,16 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL]= longURL;
+  urlDatabase[shortURL] = longURL;
   const templateVars = { shortURL, longURL }
   res.redirect(`/urls/${shortURL}`);
 })
 
 // get request to Url's destination
 
-app.get("/u/:urlId", (req, res)=> {
+app.get("/u/:urlId", (req, res) => {
   let shortURL = req.params.urlId;
-  if(!urlDatabase[shortURL]) {
+  if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
     res.render("404")
   }
@@ -41,7 +43,7 @@ app.get("/u/:urlId", (req, res)=> {
 // Handling get request for show Page
 app.get('/urls/:urlId', (req, res) => {
   let shortURL = req.params.urlId;
-  if(!urlDatabase[shortURL]) {
+  if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
     res.render("404")
   }
@@ -62,7 +64,7 @@ app.get('/', (req, res) => {
 
 // Handling Delete Request
 
-app.post('/urls/:id/delete', (req, res)=> {
+app.post('/urls/:id/delete', (req, res) => {
   let id = req.params.id;
   delete urlDatabase[id];
   //After Deleting redirecting to Urls/Home Page.
@@ -71,7 +73,7 @@ app.post('/urls/:id/delete', (req, res)=> {
 
 // Handing Edit Request
 
-app.post('/urls/:id/edit', (req, res)=> {
+app.post('/urls/:id/edit', (req, res) => {
   let id = req.params.id;
   let updatedUrl = req.body.updatedUrl;
   urlDatabase[id] = updatedUrl;
@@ -81,8 +83,10 @@ app.post('/urls/:id/edit', (req, res)=> {
 })
 
 //Login Route
-app.post('/login', (req, res)=> {
-  res.send("Ok")
+app.post('/login', (req, res) => {
+  res
+    .cookie('username', req.body.username)
+    .redirect("/urls");
 })
 
 
