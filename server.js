@@ -8,10 +8,10 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser());
 
 const users = {
-  '363cko': { 
-    id: '363cko', 
-    email: 'sunnynchelsea@gmail.com', 
-    password: 'avc' 
+  '363cko': {
+    id: '363cko',
+    email: 'sunnynchelsea@gmail.com',
+    password: 'avc'
   }
 }
 const urlDatabase = {
@@ -107,17 +107,22 @@ app.post('/logout', (req, res) => {
 //Register Route
 app.get('/register', (req, res) => {
   const user = fetchUser(users, req.cookies);
-  res.render("register", { user})
+  res.render("register", { user })
 })
 
 app.post('/register', (req, res) => {
+  if(!checkUser(users, req.body)) {
+    res.statusCode = 400;
+    return res.send("User Already exist")
+  }
   const result = createUser(users, req.body);
   if (result.error) {
-    res.send(result.error);
+    res.statusCode = 400;
+    return res.send(result.error);
   }
+  console.log(users)
   res.cookie("user_id", result.data["id"]);
   res.redirect("/urls");
-
 })
 
 // Server Creation
@@ -149,9 +154,18 @@ function createUser(usersDb, body) {
   return { data: users[id], error: null }
 }
 
+function checkUser(usersDB, body) {
+  let userEmail = body.email;
+  for(let user in usersDB) {
+    if(usersDB[user].email === userEmail) {
+      return false}
+    }
+    return true;
+}
+
 function fetchUser(usersDB, cookies) {
   let id = cookies["user_id"];
-  if(!usersDB[id]){
+  if (!usersDB[id]) {
     return null;
   }
   return usersDB[id];

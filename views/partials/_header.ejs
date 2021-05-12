@@ -11,7 +11,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if(user) { %>  
+    <% if(user && user.id) { %>  
       <form class="d-flex justify-content-end  align-items-center " method="POST" action="/logout">
         <div> Logged in as:  <span> <%= user.email %> </span></div>
         <div>
