@@ -91,10 +91,13 @@ app.post('/urls/:id/edit', (req, res) => {
 })
 
 //Login Route
+app.get('/login', (req, res)=> {
+  const user = fetchUser(users, req.cookies);
+  res.render("login", {user})
+})
+
 app.post('/login', (req, res) => {
-  res
-    .cookie('username', req.body.username)
-    .redirect("/urls");
+  res.send(req.body.email)
 })
 
 //logout route
