@@ -7,6 +7,13 @@ app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser());
 
+const users = {
+  '363cko': { 
+    id: '363cko', 
+    email: 'sunnynchelsea@gmail.com', 
+    password: 'avc' 
+  }
+}
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -17,8 +24,7 @@ const urlDatabase = {
 // Creating New Url
 
 app.get("/urls/new", (req, res) => {
-  let username = req.cookies["username"]
-  res.render("urls_new", {username});
+  res.render("urls_new", { users });
 });
 
 app.post("/urls", (req, res) => {
@@ -98,9 +104,20 @@ app.post('/logout', (req, res) => {
 })
 
 //Register Route
-app.get('/register', (req, res)=> {
+app.get('/register', (req, res) => {
   let username = req.cookies["username"]
-  res.render("register", {username})
+  res.render("register", { username })
+})
+
+app.post('/register', (req, res) => {
+  const result = createUser(users, req.body);
+  if (result.error) {
+    res.send(result.error);
+  }
+  res.cookie("user_id", result.data["id"]);
+  console.log(users, req.cookies)
+  res.redirect("/urls");
+
 })
 
 // Server Creation
@@ -117,4 +134,17 @@ function generateRandomString() {
     output = output.concat(charSet[Math.floor(Math.random() * (charSet.length - 1))])
   }
   return output;
+}
+
+function createUser(usersDb, body) {
+  const id = Math.random().toString(36).substring(2, 8);
+  const { email, password } = body;
+  if (body[id]) {
+    return { data: null, error: "User already exist!" }
+  }
+  if (!email || !password) {
+    return { data: null, error: "Invalid Fields" }
+  }
+  users[id] = { id, email, password };
+  return { data: users[id], error: null }
 }
