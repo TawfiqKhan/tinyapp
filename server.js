@@ -24,7 +24,8 @@ const urlDatabase = {
 // Creating New Url
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { users });
+  const user = fetchUser(users, req.cookies);
+  res.render("urls_new", { user });
 });
 
 app.post("/urls", (req, res) => {
@@ -49,21 +50,21 @@ app.get("/u/:urlId", (req, res) => {
 
 // Handling get request for show Page
 app.get('/urls/:urlId', (req, res) => {
-  let username = req.cookies["username"]
+  const user = fetchUser(users, req.cookies);
   let shortURL = req.params.urlId;
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
     res.render("404")
   }
   let longURL = urlDatabase[shortURL];
-  const templateVars = { shortURL, longURL, username }
+  const templateVars = { shortURL, longURL, user }
   res.render("urls_show", templateVars)
 })
 
 // Request for route/Urls page
 app.get('/urls', (req, res) => {
-  let username = req.cookies["username"]
-  const templateVars = { urls: urlDatabase, username }
+  const user = fetchUser(users, req.cookies);
+  const templateVars = { urls: urlDatabase, user }
   res.render("urls_index", templateVars)
 })
 
@@ -99,14 +100,14 @@ app.post('/login', (req, res) => {
 //logout route
 app.post('/logout', (req, res) => {
   res
-    .clearCookie('username')
+    .clearCookie('user_id')
     .redirect("/urls")
 })
 
 //Register Route
 app.get('/register', (req, res) => {
-  let username = req.cookies["username"]
-  res.render("register", { username })
+  const user = fetchUser(users, req.cookies);
+  res.render("register", { user})
 })
 
 app.post('/register', (req, res) => {
@@ -115,7 +116,6 @@ app.post('/register', (req, res) => {
     res.send(result.error);
   }
   res.cookie("user_id", result.data["id"]);
-  console.log(users, req.cookies)
   res.redirect("/urls");
 
 })
@@ -147,4 +147,12 @@ function createUser(usersDb, body) {
   }
   users[id] = { id, email, password };
   return { data: users[id], error: null }
+}
+
+function fetchUser(usersDB, cookies) {
+  let id = cookies["user_id"];
+  if(!usersDB[id]){
+    return null;
+  }
+  return usersDB[id];
 }
