@@ -97,6 +97,12 @@ app.post('/logout', (req, res) => {
     .redirect("/urls")
 })
 
+//Register Route
+app.get('/register', (req, res)=> {
+  let username = req.cookies["username"]
+  res.render("register", {username})
+})
+
 // Server Creation
 app.listen(PORT, () => {
   console.log(`Server is Listening to http://localhost:${PORT}`)
