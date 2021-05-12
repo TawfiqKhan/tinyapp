@@ -11,21 +11,20 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if(user && user.id) { %>  
-      <form class="d-flex justify-content-end  align-items-center " method="POST" action="/logout">
-        <div> Logged in as:  <span> <%= user.email %> </span></div>
-        <div>
-          <button class="btn btn-danger">LOGOUT</button>
-        </div>
-      </form>
-    <% } else { %> %>
-      <form method="POST" action="/login"> <span>Username: </span>
-        <input type="text" name="username">
-        <button class="btn btn-info">LOGIN</button>
-      </form>
-      <form method="GET" action="/register">
-        <button class="btn btn-primary">Register</button>
-      </form>
-      <% }   %> 
+    <div>
+      <% if(user && user.id) { %>
+        <form class="d-flex justify-content-end align-items-center " method="POST" action="/logout">
+          <div> Logged in as: <span>
+              <%= user.email %>
+            </span></div>
+          <div>
+            <button class="btn btn-danger">LOGOUT</button>
+          </div>
+        </form>
+        <% } else { %> %>
+          <a class="btn btn-info" href="/login">LOGIN</a>
+          <a class="btn btn-primary" href="/register">Register</a>
+          <% } %>
+    </div>
   </nav>
 </header>
