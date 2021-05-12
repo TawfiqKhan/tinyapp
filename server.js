@@ -17,7 +17,8 @@ const urlDatabase = {
 // Creating New Url
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let username = req.cookies["username"]
+  res.render("urls_new", {username});
 });
 
 app.post("/urls", (req, res) => {
@@ -42,19 +43,21 @@ app.get("/u/:urlId", (req, res) => {
 
 // Handling get request for show Page
 app.get('/urls/:urlId', (req, res) => {
+  let username = req.cookies["username"]
   let shortURL = req.params.urlId;
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
     res.render("404")
   }
   let longURL = urlDatabase[shortURL];
-  const templateVars = { shortURL, longURL }
+  const templateVars = { shortURL, longURL, username }
   res.render("urls_show", templateVars)
 })
 
 // Request for route/Urls page
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase }
+  let username = req.cookies["username"]
+  const templateVars = { urls: urlDatabase, username }
   res.render("urls_index", templateVars)
 })
 
@@ -77,8 +80,6 @@ app.post('/urls/:id/edit', (req, res) => {
   let id = req.params.id;
   let updatedUrl = req.body.updatedUrl;
   urlDatabase[id] = updatedUrl;
-  //After Deleting redirecting to Urls/Home Page.
-  // res.redirect("/urls")
   res.redirect("/urls");
 })
 
@@ -89,6 +90,12 @@ app.post('/login', (req, res) => {
     .redirect("/urls");
 })
 
+//logout route
+app.post('/logout', (req, res) => {
+  res
+    .clearCookie('username')
+    .redirect("/urls")
+})
 
 // Server Creation
 app.listen(PORT, () => {
