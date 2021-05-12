@@ -80,6 +80,11 @@ app.post('/urls/:id/edit', (req, res)=> {
   res.redirect("/urls");
 })
 
+//Login Route
+app.post('/login', (req, res)=> {
+  res.send("Ok")
+})
+
 
 // Server Creation
 app.listen(PORT, () => {
