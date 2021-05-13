@@ -8,11 +8,11 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser());
 
 const users = {
-  '363cko': {
-    id: '363cko',
-    email: 'sunnynchelsea@gmail.com',
-    password: 'avc'
-  }
+  // '363cko': {
+  //   id: '363cko',
+  //   email: 'sunnynchelsea@gmail.com',
+  //   password: 'avc'
+  // }
 }
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -91,13 +91,26 @@ app.post('/urls/:id/edit', (req, res) => {
 })
 
 //Login Route
-app.get('/login', (req, res)=> {
+app.get('/login', (req, res) => {
   const user = fetchUser(users, req.cookies);
-  res.render("login", {user})
+  res.render("login", { user })
 })
 
 app.post('/login', (req, res) => {
-  res.send(req.body.email)
+  let user = checkUser(users, req.body);
+  if (user) {
+    let inputPassword = req.body.password;
+    if (user.password === inputPassword) {
+      res.cookie("user_id", user.id);
+      return res.redirect('urls')
+    } else {
+      res.statusCode = 403;
+      return res.send("wrong email/password, try again.")
+    }
+  }
+  res.statusCode = 403;
+  console.log(users)
+  res.send("wrong email/password, try again.")
 })
 
 //logout route
@@ -114,17 +127,12 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-  if(!checkUser(users, req.body)) {
-    res.statusCode = 400;
-    return res.send("User Already exist")
-  }
   const result = createUser(users, req.body);
   if (result.error) {
     res.statusCode = 400;
     return res.send(result.error);
   }
-  console.log(users)
-  res.cookie("user_id", result.data["id"]);
+  res.cookie("user_id", result.user["id"]);
   res.redirect("/urls");
 })
 
@@ -133,7 +141,7 @@ app.listen(PORT, () => {
   console.log(`Server is Listening to http://localhost:${PORT}`)
 })
 
-//Helper function
+//>>>>>>>>   Helper function <<<<<<<<//
 
 function generateRandomString() {
   let output = ''
@@ -147,23 +155,26 @@ function generateRandomString() {
 function createUser(usersDb, body) {
   const id = Math.random().toString(36).substring(2, 8);
   const { email, password } = body;
-  if (body[id]) {
-    return { data: null, error: "User already exist!" }
-  }
+
   if (!email || !password) {
-    return { data: null, error: "Invalid Fields" }
+    return { user: null, error: "Invalid Fields" }
   }
-  users[id] = { id, email, password };
-  return { data: users[id], error: null }
+  //Checking to see if user alredy exist
+  if (checkUser(usersDb, body)) {
+    return { user: null, error: "User Already Exist!" }
+  }
+  usersDb[id] = { id, email, password };
+  return { user: users[id], error: null }
 }
 
 function checkUser(usersDB, body) {
   let userEmail = body.email;
-  for(let user in usersDB) {
-    if(usersDB[user].email === userEmail) {
-      return false}
+  for (let user in usersDB) {
+    if (usersDB[user].email === userEmail) {
+      return usersDB[user]
     }
-    return true;
+  }
+  return null;
 }
 
 function fetchUser(usersDB, cookies) {
