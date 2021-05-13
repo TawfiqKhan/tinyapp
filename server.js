@@ -60,7 +60,7 @@ app.post("/urls", (req, res) => {
 
 // get request to Url's destination
 
-app.get("/u/:urlId", (req, res) => {
+app.get("/u/:id", (req, res) => {
   let shortURL = req.params.urlId;
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
@@ -71,16 +71,23 @@ app.get("/u/:urlId", (req, res) => {
 });
 
 // Handling get request for show Page
-app.get('/urls/:urlId', (req, res) => {
+app.get('/urls/:id', (req, res) => {
   const user = fetchUser(users, req.cookies);
-  let shortURL = req.params.urlId;
-  if (!urlDatabase[shortURL]) {
-    res.statusCode = 404;
-    res.render("404");
+  const result = checkPermission(req, urlDatabase)
+  // if not logged in
+  if (!user) {
+    return res.redirect("/login")
   }
-  let longURL = urlDatabase[shortURL]["longURL"];
-  const templateVars = { shortURL, longURL, user };
-  res.render("urls_show", templateVars);
+  // if link not right/ or do not have permission
+  else if (result.error) {
+    res.status(403)
+    return res.send(result.error)
+  } else {
+    let longURL = urlDatabase[result.data]["longURL"];
+    const templateVars = { shortURL: result.data, longURL, user };
+    return res.render("urls_show", templateVars);
+  }
+  // if user has permission
 });
 
 // Request for route/Urls page
@@ -91,7 +98,7 @@ app.get('/urls', (req, res) => {
     const templateVars = { urls: filteredUrls, user };
     return res.render("urls_index", templateVars)
   }
-  res.render("urls_index", {user});
+  res.render("urls_index", { user });
 });
 
 app.get('/', (req, res) => {
@@ -101,25 +108,34 @@ app.get('/', (req, res) => {
 // Handling Delete Request
 
 app.post('/urls/:id/delete', (req, res) => {
-  let id = req.params.id;
-  delete urlDatabase[id];
-  //After Deleting redirecting to Urls/Home Page.
-  res.redirect("/urls");
+  let result = checkPermission(req, urlDatabase)
+  if (result.error) {
+    res.status(403)
+    return res.send(result.error)
+  }
+  delete urlDatabase[result.data];
+  return res.redirect("/urls");
+
 });
 
 // Handing Edit Request
 
 app.post('/urls/:id/edit', (req, res) => {
-  let id = req.params.id;
+  let result = checkPermission(req, urlDatabase)
+  if (result.error) {
+    res.status(403)
+    return res.send(result.error)
+  }
   let updatedUrl = req.body.updatedUrl;
-  urlDatabase[id]["longURL"] = updatedUrl;
-  res.redirect("/urls");
+  urlDatabase[result.data]["longURL"] = updatedUrl;
+  return res.redirect("/urls");
 });
 
 //Login Route
 app.get('/login', (req, res) => {
   const user = fetchUser(users, req.cookies);
-  res.render("login", { user });
+  const templateVars = { user };
+  res.render("login", templateVars);
 });
 
 app.post('/login', (req, res) => {
@@ -177,4 +193,16 @@ function urlsForUser(id, urlDB) {
     }
   }
   return filteredUrls;
+}
+
+function checkPermission(req, urlDB) {
+  let userId = req.cookies.user_id
+  let urlId = req.params.id;
+  if (!urlDB[urlId]) {
+    return { data: null, error: "url Not found" }
+  }
+  else if (urlDB[urlId]["userID"] !== userId) {
+    return { data: null, error: "You do not have permission!" }
+  }
+  return { data: urlId, error: null };
 }
