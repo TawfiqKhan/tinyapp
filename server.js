@@ -9,11 +9,17 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const users = {};
+const users = {
+  aJ48lW : {
+    id: "aJ48lW",
+    email: "sunnynchelsea@gmail.com",
+    password: "abc"
+  }
+};
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" }
 };
 
 // Get Requests
@@ -31,8 +37,9 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
-  const templateVars = { shortURL, longURL };
+  let userID = req.cookies["user_id"]
+  urlDatabase[shortURL] = {longURL, userID };
+  // const templateVars = { shortURL, longURL };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -44,7 +51,7 @@ app.get("/u/:urlId", (req, res) => {
     res.statusCode = 404;
     res.render("404");
   }
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[shortURL]["longURL"];
   res.redirect(longURL);
 });
 
@@ -56,7 +63,7 @@ app.get('/urls/:urlId', (req, res) => {
     res.statusCode = 404;
     res.render("404");
   }
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[shortURL]["longURL"];
   const templateVars = { shortURL, longURL, user };
   res.render("urls_show", templateVars);
 });
@@ -86,7 +93,7 @@ app.post('/urls/:id/delete', (req, res) => {
 app.post('/urls/:id/edit', (req, res) => {
   let id = req.params.id;
   let updatedUrl = req.body.updatedUrl;
-  urlDatabase[id] = updatedUrl;
+  urlDatabase[id]["longURL"] = updatedUrl;
   res.redirect("/urls");
 });
 
