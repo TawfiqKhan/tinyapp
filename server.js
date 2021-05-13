@@ -87,7 +87,6 @@ app.get('/urls/:id', (req, res) => {
     const templateVars = { shortURL: result.data, longURL, user };
     return res.render("urls_show", templateVars);
   }
-  // if user has permission
 });
 
 // Request for route/Urls page
@@ -199,7 +198,7 @@ function checkPermission(req, urlDB) {
   let userId = req.cookies.user_id
   let urlId = req.params.id;
   if (!urlDB[urlId]) {
-    return { data: null, error: "url Not found" }
+    return { data: null, error: "URL Not found" }
   }
   else if (urlDB[urlId]["userID"] !== userId) {
     return { data: null, error: "You do not have permission!" }
