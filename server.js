@@ -24,6 +24,12 @@ const urlDatabase = {
 
 // Get Requests
 
+
+// Ask users to login or register to view urls
+
+// if logged in, only show their own urls
+
+
 // Creating New Url
 
 app.get("/urls/new", (req, res) => {
@@ -72,6 +78,7 @@ app.get('/urls/:urlId', (req, res) => {
 app.get('/urls', (req, res) => {
   const user = fetchUser(users, req.cookies);
   const templateVars = { urls: urlDatabase, user };
+  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
