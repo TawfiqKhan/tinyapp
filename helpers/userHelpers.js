@@ -27,7 +27,8 @@ function checkUser(usersDB, body) {
 }
 
 function fetchUser(usersDB, cookies) {
-  let id = cookies["user_id"];
+  let id = cookies.user_id;
+  console.log("line 31 id:", id )
   if (!usersDB[id]) {
     return null;
   }

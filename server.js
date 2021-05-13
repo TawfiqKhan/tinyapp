@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
+const cookieSession = require('cookie-session')
 const PORT = 3000;
 const bcrypt = require('bcrypt');
 
@@ -8,42 +9,42 @@ const { generateRandomString, createUser, checkUser, fetchUser } = require("./he
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
+
+// Cookie Session Middleware
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 const users = {
-  aJ48lW: {
-    id: "aJ48lW",
-    email: "sunnynchelsea@gmail.com",
-    hashedPassword: "abc"
-  },
+  // aJ48lW: {
+  //   id: "aJ48lW",
+  //   email: "sunnynchelsea@gmail.com",
+  //   hashedPassword: "abc"
+  // },
 
-  aJ4256: {
-    id: "aJ4256",
-    email: "special3220@yahoo.com",
-    hashedPassword: "abc"
-  },
+  // aJ4256: {
+  //   id: "aJ4256",
+  //   email: "special3220@yahoo.com",
+  //   hashedPassword: "abc"
+  // },
 };
 
 const urlDatabase = {
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
-  i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" },
-  i3abcd: { longURL: "http://footiemanager.com", userID: "aJ4256" },
-  i3efgh: { longURL: "https://dailymail.com", userID: "aJ4256" },
+  // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  // i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" },
+  // i3abcd: { longURL: "http://footiemanager.com", userID: "aJ4256" },
+  // i3efgh: { longURL: "https://dailymail.com", userID: "aJ4256" },
 };
 
 
 // Get Requests
 
-
-// Ask users to login or register to view urls
-
-// if logged in, only show their own urls
-
-
 // Creating New Url
 
 app.get("/urls/new", (req, res) => {
-  const user = fetchUser(users, req.cookies);
+  const user = fetchUser(users, req.session);
   if (!user) {
     res.redirect("/login");
   }
@@ -53,7 +54,7 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  let userID = req.cookies["user_id"]
+  let userID = req.session["user_id"]
   urlDatabase[shortURL] = { longURL, userID };
   // const templateVars = { shortURL, longURL };
   res.redirect(`/urls/${shortURL}`);
@@ -73,7 +74,7 @@ app.get("/u/:id", (req, res) => {
 
 // Handling get request for show Page
 app.get('/urls/:id', (req, res) => {
-  const user = fetchUser(users, req.cookies);
+  const user = fetchUser(users, req.session);
   const result = checkPermission(req, urlDatabase)
   // if not logged in
   if (!user) {
@@ -92,7 +93,7 @@ app.get('/urls/:id', (req, res) => {
 
 // Request for route/Urls page
 app.get('/urls', (req, res) => {
-  const user = fetchUser(users, req.cookies);
+  const user = fetchUser(users, req.session);
   if (user && user.id) {
     let filteredUrls = urlsForUser(user.id, urlDatabase);
     const templateVars = { urls: filteredUrls, user };
@@ -133,7 +134,10 @@ app.post('/urls/:id/edit', (req, res) => {
 
 //Login Route
 app.get('/login', (req, res) => {
-  const user = fetchUser(users, req.cookies);
+  const user = fetchUser(users, req.session);
+  if (user) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user };
   res.render("login", templateVars);
 });
@@ -141,11 +145,11 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let user = checkUser(users, req.body);
   if (user) {
-    let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword); 
+    let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
     if (passwordCheck) {
-      res.cookie("user_id", user.id);
+      req.session["user_id"] = result.user["id"];
       return res.redirect('urls');
-    } 
+    }
   }
   res.statusCode = 403;
   res.send("wrong email/password, try again.");
@@ -153,14 +157,17 @@ app.post('/login', (req, res) => {
 
 //logout route
 app.post('/logout', (req, res) => {
-  res
-    .clearCookie('user_id')
-    .redirect("/urls");
+  req.session = null;
+  res.redirect("/urls");
 });
 
 //Register Route
 app.get('/register', (req, res) => {
-  const user = fetchUser(users, req.cookies);
+  const user = fetchUser(users, req.session);
+  // if user already logged in, sending back to homepage
+  if (user) {
+    return res.redirect("/urls")
+  }
   res.render("register", { user });
 });
 
@@ -170,8 +177,7 @@ app.post('/register', (req, res) => {
     res.statusCode = 400;
     return res.send(result.error);
   }
-  console.log(users);
-  res.cookie("user_id", result.user["id"]);
+  req.session["user_id"] = result.user["id"];
   res.redirect("/urls");
 });
 
@@ -194,7 +200,7 @@ function urlsForUser(id, urlDB) {
 }
 
 function checkPermission(req, urlDB) {
-  let userId = req.cookies.user_id
+  let userId = req.session.user_id
   let urlId = req.params.id;
   if (!urlDB[urlId]) {
     return { data: null, error: "URL Not found" }
