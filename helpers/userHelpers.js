@@ -1,7 +1,9 @@
+const bcrypt = require('bcrypt');
 
 function createUser(usersDb, body) {
   const id = Math.random().toString(36).substring(2, 8);
   const { email, password } = body;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (!email || !password) {
     return { user: null, error: "Invalid Fields" };
@@ -10,7 +12,7 @@ function createUser(usersDb, body) {
   if (checkUser(usersDb, body)) {
     return { user: null, error: "User Already Exist!" };
   }
-  usersDb[id] = { id, email, password };
+  usersDb[id] = { id, email, hashedPassword };
   return { user: usersDb[id], error: null };
 }
 

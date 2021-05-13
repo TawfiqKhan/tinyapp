@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const PORT = 3000;
+const bcrypt = require('bcrypt');
 
 const { generateRandomString, createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
 
@@ -13,13 +14,13 @@ const users = {
   aJ48lW: {
     id: "aJ48lW",
     email: "sunnynchelsea@gmail.com",
-    password: "abc"
+    hashedPassword: "abc"
   },
 
   aJ4256: {
     id: "aJ4256",
     email: "special3220@yahoo.com",
-    password: "abc"
+    hashedPassword: "abc"
   },
 };
 
@@ -140,14 +141,11 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let user = checkUser(users, req.body);
   if (user) {
-    let inputPassword = req.body.password;
-    if (user.password === inputPassword) {
+    let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword); 
+    if (passwordCheck) {
       res.cookie("user_id", user.id);
       return res.redirect('urls');
-    } else {
-      res.statusCode = 403;
-      return res.send("wrong email/password, try again.");
-    }
+    } 
   }
   res.statusCode = 403;
   res.send("wrong email/password, try again.");
@@ -172,6 +170,7 @@ app.post('/register', (req, res) => {
     res.statusCode = 400;
     return res.send(result.error);
   }
+  console.log(users);
   res.cookie("user_id", result.user["id"]);
   res.redirect("/urls");
 });
