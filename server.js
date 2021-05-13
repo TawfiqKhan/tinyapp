@@ -3,6 +3,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const PORT = 3000;
 
+const { createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -20,6 +22,9 @@ const urlDatabase = {
 
 app.get("/urls/new", (req, res) => {
   const user = fetchUser(users, req.cookies);
+  if (!user) {
+    res.redirect("/login");
+  }
   res.render("urls_new", { user });
 });
 
@@ -144,37 +149,4 @@ function generateRandomString() {
     output = output.concat(charSet[Math.floor(Math.random() * (charSet.length - 1))]);
   }
   return output;
-}
-
-function createUser(usersDb, body) {
-  const id = Math.random().toString(36).substring(2, 8);
-  const { email, password } = body;
-
-  if (!email || !password) {
-    return { user: null, error: "Invalid Fields" };
-  }
-  //Checking to see if user alredy exist
-  if (checkUser(usersDb, body)) {
-    return { user: null, error: "User Already Exist!" };
-  }
-  usersDb[id] = { id, email, password };
-  return { user: users[id], error: null };
-}
-
-function checkUser(usersDB, body) {
-  let userEmail = body.email;
-  for (let user in usersDB) {
-    if (usersDB[user].email === userEmail) {
-      return usersDB[user];
-    }
-  }
-  return null;
-}
-
-function fetchUser(usersDB, cookies) {
-  let id = cookies["user_id"];
-  if (!usersDB[id]) {
-    return null;
-  }
-  return usersDB[id];
 }
