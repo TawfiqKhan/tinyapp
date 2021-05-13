@@ -89,7 +89,7 @@ app.get('/urls', (req, res) => {
   if (user && user.id) {
     let filteredUrls = urlsForUser(user.id, urlDatabase);
     const templateVars = { urls: filteredUrls, user };
-    res.render("urls_index", templateVars)
+    return res.render("urls_index", templateVars)
   }
   res.render("urls_index", {user});
 });
