@@ -14,16 +14,18 @@
     <div>
       <% if(user && user.id) { %>
         <form class="d-flex justify-content-end align-items-center " method="POST" action="/logout">
-          <div> Logged in as: <span>
-              <%= user.email %>
-            </span></div>
+          <div class="text-white">
+            <span class="mt-10" style= "font-size: 1.2rem; margin-right: 2rem;">
+              Logged in as: <%= user.email %>
+            </span>
+          </div>
           <div>
-            <button class="btn btn-danger">LOGOUT</button>
+            <button class="px-5 btn btn-danger">LOGOUT</button>
           </div>
         </form>
         <% } else { %> %>
-          <a class="btn btn-info" href="/login">LOGIN</a>
-          <a class="btn btn-primary" href="/register">Register</a>
+          <a class="px-5 btn btn-info" href="/login">LOGIN</a>
+          <a class="px-5 btn btn-primary" href="/register">Register</a>
           <% } %>
     </div>
   </nav>

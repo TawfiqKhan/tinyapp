@@ -16,8 +16,8 @@
       <div class="row">
         <div class="col-md-12">
           <!-- Checking to see if user is logged in to show selective HTML -->
-          
-          <% if(!user){%> 
+
+          <% if(!user){%>
             <div class="jumbotron text-center">
               <h1 class="display-5">Hi there</h1>
               <p class="lead">Please login to create your tiny url.</p>
@@ -27,42 +27,49 @@
                 <a class="btn btn-primary" href="/register">Register</a>
               </p>
             </div>
-          <%  } else {%>
-          <table class="table text-center">
-            <thead>
-              <tr>
-                <th scope="col"> Short Url</th>
-                <th scope="col"> Long Url</th>
-                <th scope="col"> Edit</th>
-                <th scope="col"> Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% for(let item in urls) { %>
-                <tr>
-                  <td>
-                    <a href="/urls/<%= item %>">
-                      <%= item %>
-                    </a>
-                  </td>
-                  <td>
-                    <%= urls[item]["longURL"] %>
-                  </td>
-                  <td>
-                    <a href="/urls/<%= item %>">
-                      <button class="btn btn-success">Edit</button>
-                    </a>
-                  </td>
-                  <td>
-                    <form method="POST" action="/urls/<%= item %>/delete">
-                      <input type="submit" class="btn btn-danger" value="Delete">
-                    </form>
-                  </td>
-                </tr>
+            <% }else if (Object.keys(urls).length===0) { %>
+              <div class="pt-5 pb-5 jumbostron text-center">
+                <p class="lead">Oops! your url list is empty, Try adding some links</p>
+                <p class="lead">
+                  <a class="btn btn-primary" href="/urls/new">Create New URL</a>
+                </p>
+              </div>
+              <% } else {%>
+                <table class="table text-center">
+                  <thead>
+                    <tr>
+                      <th scope="col"> Short Url</th>
+                      <th scope="col"> Long Url</th>
+                      <th scope="col"> Edit</th>
+                      <th scope="col"> Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for(let item in urls) { %>
+                      <tr>
+                        <td>
+                          <a href="/urls/<%= item %>">
+                            <%= item %>
+                          </a>
+                        </td>
+                        <td>
+                          <%= urls[item]["longURL"] %>
+                        </td>
+                        <td>
+                          <a href="/urls/<%= item %>">
+                            <button class="btn btn-success">Edit</button>
+                          </a>
+                        </td>
+                        <td>
+                          <form method="POST" action="/urls/<%= item %>/delete">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                          </form>
+                        </td>
+                      </tr>
+                      <% } %>
+                  </tbody>
+                </table>
                 <% } %>
-            </tbody>
-          </table>
-          <% } %> 
         </div>
       </div>
     </div>

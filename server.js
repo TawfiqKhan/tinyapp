@@ -3,20 +3,20 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const PORT = 3000;
 
-const { generateRandomString,createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
+const { generateRandomString, createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const users = {
-  aJ48lW : {
+  aJ48lW: {
     id: "aJ48lW",
     email: "sunnynchelsea@gmail.com",
     password: "abc"
   },
 
-  aJ4256 : {
+  aJ4256: {
     id: "aJ4256",
     email: "special3220@yahoo.com",
     password: "abc"
@@ -53,7 +53,7 @@ app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
   let userID = req.cookies["user_id"]
-  urlDatabase[shortURL] = {longURL, userID };
+  urlDatabase[shortURL] = { longURL, userID };
   // const templateVars = { shortURL, longURL };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -86,9 +86,12 @@ app.get('/urls/:urlId', (req, res) => {
 // Request for route/Urls page
 app.get('/urls', (req, res) => {
   const user = fetchUser(users, req.cookies);
-  const templateVars = { urls: urlDatabase, user };
-  console.log(templateVars);
-  res.render("urls_index", templateVars);
+  if (user && user.id) {
+    let filteredUrls = urlsForUser(user.id, urlDatabase);
+    const templateVars = { urls: filteredUrls, user };
+    res.render("urls_index", templateVars)
+  }
+  res.render("urls_index", {user});
 });
 
 app.get('/', (req, res) => {
@@ -165,6 +168,13 @@ app.listen(PORT, () => {
 
 //>>>>>>>>   Helper function <<<<<<<<//
 
-// urlsForUser(id) {
-  
-// }
+function urlsForUser(id, urlDB) {
+  const filteredUrls = {};
+  const keys = Object.keys(urlDB);
+  for (let item of keys) {
+    if (urlDB[item]["userID"] === id) {
+      filteredUrls[item] = urlDB[item];
+    }
+  }
+  return filteredUrls;
+}
