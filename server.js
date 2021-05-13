@@ -3,7 +3,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const PORT = 3000;
 
-const { createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
+const { generateRandomString,createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -14,13 +14,22 @@ const users = {
     id: "aJ48lW",
     email: "sunnynchelsea@gmail.com",
     password: "abc"
-  }
+  },
+
+  aJ4256 : {
+    id: "aJ4256",
+    email: "special3220@yahoo.com",
+    password: "abc"
+  },
 };
 
 const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
-  i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" }
+  i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" },
+  i3abcd: { longURL: "http://footiemanager.com", userID: "aJ4256" },
+  i3efgh: { longURL: "https://dailymail.com", userID: "aJ4256" },
 };
+
 
 // Get Requests
 
@@ -156,11 +165,6 @@ app.listen(PORT, () => {
 
 //>>>>>>>>   Helper function <<<<<<<<//
 
-function generateRandomString() {
-  let output = '';
-  let charSet = 'abcdefghijklmnopqrstuvwxyz123456789';
-  for (let i = 0; i < 7; i++) {
-    output = output.concat(charSet[Math.floor(Math.random() * (charSet.length - 1))]);
-  }
-  return output;
-}
+// urlsForUser(id) {
+  
+// }

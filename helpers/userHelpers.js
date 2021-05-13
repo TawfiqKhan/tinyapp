@@ -32,4 +32,13 @@ function fetchUser(usersDB, cookies) {
   return usersDB[id];
 }
 
-module.exports = {createUser, checkUser, fetchUser};
+function generateRandomString() {
+  let output = '';
+  let charSet = 'abcdefghijklmnopqrstuvwxyz123456789';
+  for (let i = 0; i < 7; i++) {
+    output = output.concat(charSet[Math.floor(Math.random() * (charSet.length - 1))]);
+  }
+  return output;
+}
+
+module.exports = { generateRandomString,createUser, checkUser, fetchUser};
