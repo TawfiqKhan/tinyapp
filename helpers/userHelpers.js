@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 
+// Creates new User, Uses checkUser function as well
 function createUser(usersDb, body) {
   const id = Math.random().toString(36).substring(2, 8);
   const { email, password } = body;
@@ -16,6 +17,7 @@ function createUser(usersDb, body) {
   return { user: usersDb[id], error: null };
 }
 
+//Checks whether user already exists in the DB or not.
 function checkUser(usersDB, email) {
   for (let user in usersDB) {
     if (usersDB[user].email === email) {
@@ -25,6 +27,7 @@ function checkUser(usersDB, email) {
   return null;
 }
 
+// Fetch user data using cookies
 function fetchUser(usersDB, cookies) {
   let id = cookies.user_id;
   if (!usersDB[id]) {
@@ -42,6 +45,7 @@ function generateRandomString() {
   return output;
 }
 
+// Checks whether use have permission to perform CRUD
 function checkPermission(req, urlDB) {
   let userId = req.session.user_id;
   let urlId = req.params.id;
@@ -53,6 +57,7 @@ function checkPermission(req, urlDB) {
   return { data: urlId, error: null };
 }
 
+// Filters the URL which belongs to the user.
 function urlsForUser(id, urlDB) {
   const filteredUrls = {};
   const keys = Object.keys(urlDB);

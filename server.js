@@ -1,56 +1,35 @@
-const express = require("express");
-const app = express();
-const cookieSession = require('cookie-session');
-const flash = require('connect-flash');
-const PORT = 3000;
-const bcrypt = require('bcrypt');
+const express         = require("express"),
+      app             = express(),
+      cookieSession   = require('cookie-session'),
+      flash           = require('connect-flash'),
+      PORT            = 3000,
+      bcrypt          = require('bcrypt');
 
+//Importing helper functions
 const { generateRandomString,createUser, checkUser, fetchUser, urlsForUser, checkPermission } = require("./helpers/userHelpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-
-// app.use(cookieParser());
 
 // Cookie Session Middleware
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+
 app.use(flash());
+//Setting flash middleware
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   next();
 });
 
+//The App Database
+const users = {};
+const urlDatabase = {};
 
-const users = {
-  // aJ48lW: {
-  //   id: "aJ48lW",
-  //   email: "sunnynchelsea@gmail.com",
-  //   hashedPassword: "abc"
-  // },
-
-  // aJ4256: {
-  //   id: "aJ4256",
-  //   email: "special3220@yahoo.com",
-  //   hashedPassword: "abc"
-  // },
-};
-
-const urlDatabase = {
-  // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
-  // i3CoBr: { longURL: "https://bbc.co.uk", userID: "aJ48lW" },
-  // i3abcd: { longURL: "http://footiemanager.com", userID: "aJ4256" },
-  // i3efgh: { longURL: "https://dailymail.com", userID: "aJ4256" },
-};
-
-
-// Get Requests
-
-// Creating New Url
-
+// GET for new Url
 app.get("/urls/new", (req, res) => {
   const user = fetchUser(users, req.session);
   if (!user) {
@@ -59,6 +38,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", { user });
 });
 
+// POST for new URL submission
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
@@ -68,11 +48,11 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// get request to Url's destination
-
+// GET request to Url's destination
 app.get("/u/:id", (req, res) => {
   const user = fetchUser(users, req.session);
   let shortURL = req.params.id;
+  //if url do not exist in DB
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
     res.render("404", { user, error: "URL Not Found" });
@@ -81,9 +61,8 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-// Handling get request for show Page
+// GET for invividual URL show page
 app.get('/urls/:id', (req, res) => {
-  console.log(res.locals);
   const user = fetchUser(users, req.session);
   const result = checkPermission(req, urlDatabase);
   // if not logged in
@@ -91,7 +70,7 @@ app.get('/urls/:id', (req, res) => {
     req.flash('error', "You need to login see that url!");
     return res.redirect("/login");
   } else if (result.error) {
-    // if link not right/ or do not have permission
+  // if link not right/ or do not have permission
     res.status(403);
     req.flash('error', result.error);
     return res.redirect("/urls");
@@ -102,7 +81,7 @@ app.get('/urls/:id', (req, res) => {
   }
 });
 
-// Request for route/Urls page
+// Only showing URL which belongs to the User
 app.get('/urls', (req, res) => {
   const user = fetchUser(users, req.session);
   if (user && user.id) {
@@ -118,8 +97,8 @@ app.get('/', (req, res) => {
 });
 
 // Handling Delete Request
-
 app.post('/urls/:id/delete', (req, res) => {
+  // user May or may not have permission
   let result = checkPermission(req, urlDatabase);
   if (result.error) {
     res.status(403);
@@ -132,7 +111,6 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 // Handing Edit Request
-
 app.post('/urls/:id/edit', (req, res) => {
   let result = checkPermission(req, urlDatabase);
   if (result.error) {
@@ -189,6 +167,7 @@ app.get('/register', (req, res) => {
   res.render("register", { user });
 });
 
+// POST Route for user registration
 app.post('/register', (req, res) => {
   const result = createUser(users, req.body);
   if (result.error) {
@@ -205,6 +184,4 @@ app.post('/register', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is Listening to http://localhost:${PORT}`);
 });
-
-//>>>>>>>>   Helper function <<<<<<<<//
 
