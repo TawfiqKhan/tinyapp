@@ -18,7 +18,7 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }));
 app.use(flash());
-app.use((req, res, next)=> {
+app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   next();
@@ -64,8 +64,7 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let userID = req.session["user_id"]
   urlDatabase[shortURL] = { longURL, userID };
-  // const templateVars = { shortURL, longURL };
-  req.flash('success', "Your URL has been added...");
+  req.flash('success', "Your URL has been added!");
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -76,7 +75,7 @@ app.get("/u/:id", (req, res) => {
   let shortURL = req.params.id;
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
-    res.render("404", {user, error: "URL Not Found"});
+    res.render("404", { user, error: "URL Not Found" });
   }
   let longURL = urlDatabase[shortURL]["longURL"];
   res.redirect(longURL);
@@ -89,12 +88,14 @@ app.get('/urls/:id', (req, res) => {
   const result = checkPermission(req, urlDatabase)
   // if not logged in
   if (!user) {
+    req.flash('error', "You need to login see that url!")
     return res.redirect("/login")
   }
   // if link not right/ or do not have permission
   else if (result.error) {
     res.status(403)
-    return res.send(result.error)
+    req.flash('error', result.error);
+    return res.redirect("/urls");
   } else {
     let longURL = urlDatabase[result.data]["longURL"];
     const templateVars = { shortURL: result.data, longURL, user };
@@ -126,6 +127,7 @@ app.post('/urls/:id/delete', (req, res) => {
     return res.send(result.error)
   }
   delete urlDatabase[result.data];
+  req.flash('success', "The URL has been deleted!");
   return res.redirect("/urls");
 
 });
@@ -135,11 +137,12 @@ app.post('/urls/:id/delete', (req, res) => {
 app.post('/urls/:id/edit', (req, res) => {
   let result = checkPermission(req, urlDatabase)
   if (result.error) {
-    res.status(403)
-    return res.send(result.error)
+    req.flash('error', result.error);
+    return res.redirect("/urls");
   }
   let updatedUrl = req.body.updatedUrl;
   urlDatabase[result.data]["longURL"] = updatedUrl;
+  req.flash('success', "You have successfully updated your URL!");
   return res.redirect("/urls");
 });
 
@@ -147,6 +150,7 @@ app.post('/urls/:id/edit', (req, res) => {
 app.get('/login', (req, res) => {
   const user = fetchUser(users, req.session);
   if (user) {
+    req.flash('error', "You are already logged in!");
     return res.redirect("/urls");
   }
   const templateVars = { user };
@@ -160,17 +164,19 @@ app.post('/login', (req, res) => {
     let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
     if (passwordCheck) {
       req.session["user_id"] = user["id"];
+      req.flash('success', "You have successfully logged in!");
       return res.redirect('urls');
     }
   }
   res.statusCode = 403;
-  res.send("wrong email/password, try again.");
+  req.flash('error', "Wrong email/password, try again.");
+  res.redirect('/login');
 });
 
 //logout route
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 //Register Route
@@ -178,6 +184,7 @@ app.get('/register', (req, res) => {
   const user = fetchUser(users, req.session);
   // if user already logged in, sending back to homepage
   if (user) {
+    req.flash('error', "You are already logged in!");
     return res.redirect("/urls")
   }
   res.render("register", { user });
@@ -187,9 +194,11 @@ app.post('/register', (req, res) => {
   const result = createUser(users, req.body);
   if (result.error) {
     res.statusCode = 400;
-    return res.send(result.error);
+    req.flash('error', result.error);
+    return res.redirect("/register")
   }
   req.session["user_id"] = result.user["id"];
+  req.flash('success', "Registration Successful, Welcome Abroad!")
   res.redirect("/urls");
 });
 
@@ -218,7 +227,7 @@ function checkPermission(req, urlDB) {
     return { data: null, error: "URL Not found" }
   }
   else if (urlDB[urlId]["userID"] !== userId) {
-    return { data: null, error: "You do not have permission!" }
+    return { data: null, error: "You do not have permission to do that!" }
   }
   return { data: urlId, error: null };
 }

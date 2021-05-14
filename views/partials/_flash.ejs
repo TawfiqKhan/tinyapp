@@ -1,0 +1,13 @@
+<% if(success && success.length){ %> 
+<div class="text-center alert alert-success alert-dismissible" role="alert">
+  <strong style="font-size: 1.2rem"><%= success %></strong>
+  <span type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></span>
+</div>
+<% } %> 
+
+<% if(error&& error.length){ %> 
+  <div class="text-center alert alert-danger alert-dismissible" role="alert">
+    <strong style="font-size: 1.2rem"><%= error %></strong>
+    <span type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></span>
+  </div>
+  <% } %> 
