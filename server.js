@@ -63,10 +63,11 @@ app.post("/urls", (req, res) => {
 // get request to Url's destination
 
 app.get("/u/:id", (req, res) => {
-  let shortURL = req.params.urlId;
+  const user = fetchUser(users, req.session);
+  let shortURL = req.params.id;
   if (!urlDatabase[shortURL]) {
     res.statusCode = 404;
-    res.render("404");
+    res.render("404", {user, error: "URL Not Found"});
   }
   let longURL = urlDatabase[shortURL]["longURL"];
   res.redirect(longURL);
