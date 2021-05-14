@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const flash = require('connect-flash');
 const PORT = 3000;
 const bcrypt = require('bcrypt');
 
-const { generateRandomString, createUser, checkUser, fetchUser } = require("./helpers/userHelpers");
+const { generateRandomString,createUser, checkUser, fetchUser, urlsForUser, checkPermission } = require("./helpers/userHelpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   next();
-})
+});
 
 
 const users = {
@@ -62,7 +62,7 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
-  let userID = req.session["user_id"]
+  let userID = req.session["user_id"];
   urlDatabase[shortURL] = { longURL, userID };
   req.flash('success', "Your URL has been added!");
   res.redirect(`/urls/${shortURL}`);
@@ -83,17 +83,16 @@ app.get("/u/:id", (req, res) => {
 
 // Handling get request for show Page
 app.get('/urls/:id', (req, res) => {
-  console.log(res.locals)
+  console.log(res.locals);
   const user = fetchUser(users, req.session);
-  const result = checkPermission(req, urlDatabase)
+  const result = checkPermission(req, urlDatabase);
   // if not logged in
   if (!user) {
-    req.flash('error', "You need to login see that url!")
-    return res.redirect("/login")
-  }
-  // if link not right/ or do not have permission
-  else if (result.error) {
-    res.status(403)
+    req.flash('error', "You need to login see that url!");
+    return res.redirect("/login");
+  } else if (result.error) {
+    // if link not right/ or do not have permission
+    res.status(403);
     req.flash('error', result.error);
     return res.redirect("/urls");
   } else {
@@ -109,7 +108,7 @@ app.get('/urls', (req, res) => {
   if (user && user.id) {
     let filteredUrls = urlsForUser(user.id, urlDatabase);
     const templateVars = { urls: filteredUrls, user };
-    return res.render("urls_index", templateVars)
+    return res.render("urls_index", templateVars);
   }
   res.render("urls_index", { user });
 });
@@ -121,10 +120,10 @@ app.get('/', (req, res) => {
 // Handling Delete Request
 
 app.post('/urls/:id/delete', (req, res) => {
-  let result = checkPermission(req, urlDatabase)
+  let result = checkPermission(req, urlDatabase);
   if (result.error) {
-    res.status(403)
-    return res.send(result.error)
+    res.status(403);
+    return res.send(result.error);
   }
   delete urlDatabase[result.data];
   req.flash('success', "The URL has been deleted!");
@@ -135,7 +134,7 @@ app.post('/urls/:id/delete', (req, res) => {
 // Handing Edit Request
 
 app.post('/urls/:id/edit', (req, res) => {
-  let result = checkPermission(req, urlDatabase)
+  let result = checkPermission(req, urlDatabase);
   if (result.error) {
     req.flash('error', result.error);
     return res.redirect("/urls");
@@ -185,7 +184,7 @@ app.get('/register', (req, res) => {
   // if user already logged in, sending back to homepage
   if (user) {
     req.flash('error', "You are already logged in!");
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   res.render("register", { user });
 });
@@ -195,10 +194,10 @@ app.post('/register', (req, res) => {
   if (result.error) {
     res.statusCode = 400;
     req.flash('error', result.error);
-    return res.redirect("/register")
+    return res.redirect("/register");
   }
   req.session["user_id"] = result.user["id"];
-  req.flash('success', "Registration Successful, Welcome Abroad!")
+  req.flash('success', "Registration Successful, Welcome Abroad!");
   res.redirect("/urls");
 });
 
@@ -209,25 +208,3 @@ app.listen(PORT, () => {
 
 //>>>>>>>>   Helper function <<<<<<<<//
 
-function urlsForUser(id, urlDB) {
-  const filteredUrls = {};
-  const keys = Object.keys(urlDB);
-  for (let item of keys) {
-    if (urlDB[item]["userID"] === id) {
-      filteredUrls[item] = urlDB[item];
-    }
-  }
-  return filteredUrls;
-}
-
-function checkPermission(req, urlDB) {
-  let userId = req.session.user_id
-  let urlId = req.params.id;
-  if (!urlDB[urlId]) {
-    return { data: null, error: "URL Not found" }
-  }
-  else if (urlDB[urlId]["userID"] !== userId) {
-    return { data: null, error: "You do not have permission to do that!" }
-  }
-  return { data: urlId, error: null };
-}

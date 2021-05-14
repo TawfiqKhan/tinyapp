@@ -42,4 +42,26 @@ function generateRandomString() {
   return output;
 }
 
-module.exports = { generateRandomString,createUser, checkUser, fetchUser};
+function checkPermission(req, urlDB) {
+  let userId = req.session.user_id;
+  let urlId = req.params.id;
+  if (!urlDB[urlId]) {
+    return { data: null, error: "URL Not found" };
+  } else if (urlDB[urlId]["userID"] !== userId) {
+    return { data: null, error: "You do not have permission to do that!" };
+  }
+  return { data: urlId, error: null };
+}
+
+function urlsForUser(id, urlDB) {
+  const filteredUrls = {};
+  const keys = Object.keys(urlDB);
+  for (let item of keys) {
+    if (urlDB[item]["userID"] === id) {
+      filteredUrls[item] = urlDB[item];
+    }
+  }
+  return filteredUrls;
+}
+
+module.exports = { generateRandomString,createUser, checkUser, fetchUser, urlsForUser, checkPermission };
