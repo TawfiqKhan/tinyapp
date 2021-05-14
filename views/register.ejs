@@ -12,23 +12,25 @@
 
 <body>
   <%- include('partials/_header'); %>
-  <%- include('partials/_flash'); %>
-  <h4 class="display-6 text-center mt-4">Registration</h4>
-    <section class="d-flex flex-row justify-content-center align-items-center">
-    <form class="col-md-4" method="POST", action="/register">
-      <hr>
-        <div class="form-group">
-          <label for="exampleInputEmail1">Email address</label>
-          <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-          <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <div class="form-group">
-          <label for="exampleInputPassword1">Password</label>
-          <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-        </div>
-        <button class="btn btn-primary mt-2">Submit</button>
-      </form>
-  </section>
+    <%- include('partials/_flash'); %>
+      <h4 class="display-6 text-center mt-4">Registration</h4>
+      <section class="d-flex flex-row justify-content-center align-items-center">
+        <form class="col-md-4" method="POST" , action="/register">
+          <hr>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" name="email" id="exampleInputEmail1" aria-describedby="emailHelp"
+              placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="password" class="form-control" id="exampleInputPassword1"
+              placeholder="Password">
+          </div>
+          <button class="btn btn-primary mt-2">Submit</button>
+        </form>
+      </section>
 </body>
 
 </html>

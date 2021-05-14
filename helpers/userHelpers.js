@@ -64,4 +64,4 @@ function urlsForUser(id, urlDB) {
   return filteredUrls;
 }
 
-module.exports = { generateRandomString,createUser, checkUser, fetchUser, urlsForUser, checkPermission };
+module.exports = { generateRandomString, createUser, checkUser, fetchUser, urlsForUser, checkPermission };
