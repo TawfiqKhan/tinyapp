@@ -143,12 +143,12 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  let userEmail = body.email;
+  let userEmail = req.body.email;
   let user = checkUser(users, userEmail);
   if (user) {
     let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
     if (passwordCheck) {
-      req.session["user_id"] = result.user["id"];
+      req.session["user_id"] = user["id"];
       return res.redirect('urls');
     }
   }
