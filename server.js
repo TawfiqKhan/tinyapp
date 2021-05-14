@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-// const cookieParser = require("cookie-parser");
 const cookieSession = require('cookie-session')
+const flash = require('connect-flash');
 const PORT = 3000;
 const bcrypt = require('bcrypt');
 
@@ -9,6 +9,7 @@ const { generateRandomString, createUser, checkUser, fetchUser } = require("./he
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+
 // app.use(cookieParser());
 
 // Cookie Session Middleware
@@ -16,6 +17,13 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+app.use(flash());
+app.use((req, res, next)=> {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+})
+
 
 const users = {
   // aJ48lW: {
@@ -57,6 +65,7 @@ app.post("/urls", (req, res) => {
   let userID = req.session["user_id"]
   urlDatabase[shortURL] = { longURL, userID };
   // const templateVars = { shortURL, longURL };
+  req.flash('success', "Your URL has been added...");
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -75,6 +84,7 @@ app.get("/u/:id", (req, res) => {
 
 // Handling get request for show Page
 app.get('/urls/:id', (req, res) => {
+  console.log(res.locals)
   const user = fetchUser(users, req.session);
   const result = checkPermission(req, urlDatabase)
   // if not logged in
