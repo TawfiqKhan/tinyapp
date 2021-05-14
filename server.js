@@ -146,7 +146,6 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   let userEmail = req.body.email;
   let user = checkUser(users, userEmail);
-  console.log(user);
   if (user) {
     let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
     if (passwordCheck) {
@@ -175,7 +174,6 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  console.log(req.body);
   const result = createUser(users, req.body);
   if (result.error) {
     res.statusCode = 400;
