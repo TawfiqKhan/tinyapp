@@ -143,7 +143,8 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  let user = checkUser(users, req.body);
+  let userEmail = body.email;
+  let user = checkUser(users, userEmail);
   if (user) {
     let passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
     if (passwordCheck) {

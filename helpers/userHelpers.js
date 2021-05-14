@@ -16,10 +16,9 @@ function createUser(usersDb, body) {
   return { user: usersDb[id], error: null };
 }
 
-function checkUser(usersDB, body) {
-  let userEmail = body.email;
+function checkUser(usersDB, email) {
   for (let user in usersDB) {
-    if (usersDB[user].email === userEmail) {
+    if (usersDB[user].email === email) {
       return usersDB[user];
     }
   }
@@ -28,7 +27,6 @@ function checkUser(usersDB, body) {
 
 function fetchUser(usersDB, cookies) {
   let id = cookies.user_id;
-  console.log("line 31 id:", id )
   if (!usersDB[id]) {
     return null;
   }
