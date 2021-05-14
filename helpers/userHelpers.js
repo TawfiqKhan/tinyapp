@@ -9,7 +9,7 @@ function createUser(usersDb, body) {
     return { user: null, error: "Invalid Fields" };
   }
   //Checking to see if user alredy exist
-  if (checkUser(usersDb, body)) {
+  if (checkUser(usersDb, email)) {
     return { user: null, error: "User Already Exist!" };
   }
   usersDb[id] = { id, email, hashedPassword };
